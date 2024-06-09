@@ -1,7 +1,7 @@
 # Basic Characteristics
 - The number of board states is between $2 \times 10^8$ and $3 \times 10^8$.
 - The game is fully Markov.
-- The transition between board states is deterministic given the result of the dice roll.
+- The transition between board states is deterministic using the action definition below.
 - At each state, the average number of available actions (width) is around 10.
 - The average length/depth of a game is in the 120-150 range.
 
@@ -11,15 +11,7 @@
 - If playing as black, simply reverse the ranking.
 
 ## State Representation
-Each board state can be uniquely represented, without need for any inference, in at least 40 bits as follows:
-
-- one bit each for every private grid (12 total)
-- two bits each for every public grid (16 total)
-- three bits each for every start/end grid (12 total)
-
-The key objective is to simplify the calculation of available (white) moves and next states. It makes sense to keep white grids (private or public together).
-
-The grids are referred to as follows:
+The key objective is to simplify the calculation of available moves and next states. The grids are referred to as follows:
 
 ```
 white:  W4 W3 W2 W1 WS WE  W14  W13
@@ -29,9 +21,9 @@ black:  B4 B3 B2 B1 BS BE  B14  B13
 
 ### Proposed Schema (WIP)
 - Stored in 64-bit unsigned integers.
-- Two bits each for all board grids to achieve consistency in the order of W1...W4, 5...12, W13, W14, B1...B4, B13, B14 (from least to most significant). Note the more significant bit of private grids are unused (40 total)
-- Three bits each for WS, WE, BS, BE from the least to the most significant (12 total)
-- Bits 54-63 unused.
+- Two bits each for board grids to achieve consistency in the order of W1...W4, 5...12, W13, W14, B1...B4, 5...12, B13, B14 (from least to most significant). Note the more significant bit of private grids are unused (56 total)
+- Three bits each for WS and BS from the least to the most significant (6 total)
+- Bits 62-63 unused.
 
 ## Action Definition
 An action is defined as the combination of the dice roll and the subsequent move on the board.
@@ -40,7 +32,7 @@ This makes it so that all possible actions, regardless of the dice roll needed, 
 
 $P^a_{ss'}$ is then given by the following probability distribution of the dice roll outcome:
 
-0 - $\frac{1}{16}$
+0 - $\frac{1}{16}$ (transitions to the current state)
 
 1 - $\frac{1}{4}$
 
@@ -49,8 +41,6 @@ $P^a_{ss'}$ is then given by the following probability distribution of the dice 
 3 - $\frac{1}{4}$
 
 4 - $\frac{1}{16}$
-
-The 0 dice roll transitions to the current state.
 
 ## Learning
 Since the policy is deterministic both during and after training. Learning $V^\pi(s)$ and $Q^\pi(s,a)$ should achieve equivalent results. The former is easier to implement.
@@ -69,10 +59,10 @@ What's the win/loss award? Does it matter?
 What's an appropriate discount rate?
 
 ## Optimal Policy
-The optimal policy is one that leads to equal or better expected return compared to all other policies at all states. Defining this is trivial once we have the optimal value function.
+The optimal policy is one that leads to equal or better expected return compared to all other policies at all states. This would be the greedy strategy once the optimal state value function is obtained.
 
 ## Convergence Criteria
-We use value iteration with a max number of allowed iterations while also monitoring the max change of state values. The exact threshold for stopping iteration depends on the reward value for transitioning to end states.
+We use value iteration with a max number of allowed iterations while also monitoring the $\Delta_{\text{max}}$ of state values. The exact threshold for stopping iteration depends on the reward value for transitioning to end states.
 
 Convergence is accelerated by a good initial value function. We can perhaps use a very basic heuristic for this, such as (#white pieces ascended - #black pieces ascended).
 
