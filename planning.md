@@ -21,7 +21,10 @@ black:  B4 B3 B2 B1 BS BE  B14  B13
 
 ### Proposed Schema (WIP)
 - Stored in 64-bit unsigned integers.
-- Two bits each for board grids to achieve consistency in the order of W1...W4, 5...12, W13, W14, B1...B4, 5...12, B13, B14 (from least to most significant). Note the more significant bit of private grids are unused (56 total)
+- Two bits each for board grids to achieve consistency in the order of W1...W4, 5...12, W13, W14, B1...B4, 5...12, B13, B14 (from least to most significant).
+    - 00: unoccupied
+    - 01: white
+    - 10: black
 - Three bits each for WS and BS from the least to the most significant (6 total)
 - Bits 62-63 indicate the endgame state. This is useful for stopping search and assigning rewards.
     - 00: not set/calculated
