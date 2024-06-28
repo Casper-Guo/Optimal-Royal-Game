@@ -64,7 +64,17 @@ Assuming a greedy policy, we can group the available moves by the dice roll need
 
 4 - $\frac{1}{16}$
 
-Note that if there is no move available for a dice roll, then it transitions to the current state.
+## Learning
+Since the policy is deterministic both during and after training. Learning $V^\pi(s)$ and $Q^\pi(s,a)$ should achieve equivalent results. The former is easier to implement.
+
+Then the Bellman equation provides:
+
+$$V^\pi(s) = \sum_a \pi(s,a) \sum_{s'}P^a_{ss'}\gamma V^\pi(s')$$
+
+Note that there is no immediate reward for any action taken while the game is in progress.
+
+## Initialization
+The terminal states must be initialized to zero. Other states initialized using a simple heuristic, perhaps (#white pieces ascended - #black pieces ascended). Transition to a white win end state is given a 100 reward and transition to a black win end state is given a -100 reward.
 
 ## Optimal Policy
 The optimal policy is one that leads to equal or better expected return compared to all other policies at all states. This would be the greedy strategy once the optimal state value function is obtained.
@@ -72,16 +82,18 @@ The optimal policy is one that leads to equal or better expected return compared
 ## Convergence Criteria
 We use value iteration with a max number of allowed iterations while also monitoring the $\Delta_{\text{max}}$ of state values. The exact threshold for stopping iteration depends on the reward value for transitioning to end states.
 
-Convergence is accelerated by a good initial value function. We can use a very basic heuristic for this, such as (#white pieces ascended - #black pieces ascended).
-
 ## Feasibility
-It is much more efficient to calculate each state's next states before running DP, so the same does not need to be done every iteration. To do this we first need a list of all valid states. This can be calculated by starting from the initial state and running BFS/DFS, alternating moves between white and black until an end state is reached. (Do this with the Python interface as we only implement transition for white in Rust).
+It is much more efficient to calculate each state's next states before running DP, so the same does not need to be done every iteration. To do this we first need a list of all valid states. This can be calculated by starting from the initial state and running BFS/DFS, generating all possible next states after a move by either player, and repeating until an end state is reached.
 
 For each state, we need to store its next states and the dice roll result needed to reach it. This map can be quite large:
 
 The key is a 64-bit int. The values are, at minimum, a 64 bit int for the state plus a 8 bit int for the dice roll result. If we assume a state has 10 next states on average, then the memory needed is:
 
-$3 \times 10^8 \times (64+10 \times (64+8)) = 2.352 \times 10^{11}$ bits = 29.4GB
+$3 \times 10^8 \times (64+4 \times 8 + 10 \times 64) = 2.208 \times 10^{11}$ bits = 27.6GB
+
+The value map is comparatively small if implemented with 32-bit float. We shouldn't need the precision of 64 bit float.
+
+$3 \times 10^8 \times 32 = 1.2 \times 10^9$ bits = 1.2 GB
 
 Note that this is also an optimistic estimate since padding will be added based on Rust memory alignment rules.
 
