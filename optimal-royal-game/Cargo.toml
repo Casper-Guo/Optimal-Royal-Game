@@ -1,0 +1,9 @@
+[package]
+name = "optimal-royal-game"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+num = "0.4.3"
+serde = "1.0.203"
+serde_json = "1.0.118"
