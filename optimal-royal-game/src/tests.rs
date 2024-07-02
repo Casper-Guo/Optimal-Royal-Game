@@ -1,5 +1,3 @@
-use std::hash::Hash;
-
 use crate::board::{get_next_states, set_endgame_status, verify_state};
 use crate::HashSet;
 

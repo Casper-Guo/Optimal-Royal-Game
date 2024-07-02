@@ -6,8 +6,9 @@ use crate::{HashMap, HashSet};
 /// final version should stop expanding if a player has won
 /// implement earlier stopping for testing
 fn is_endstate(state: State) -> bool {
-    let status = (state & (0b11 << 62)) >> 62;
-    status != IN_PROGRESS
+    // let status = (state & (0b11 << 62)) >> 62;
+    // status != IN_PROGRESS
+    state & 0xFFC0000 != 0
 }
 
 pub fn dfs() -> Graph {
@@ -23,11 +24,15 @@ pub fn dfs() -> Graph {
 
             for next_state in &mut next_states {
                 *next_state = set_endgame_status(*next_state);
-                if !(seen.contains(next_state) || is_endstate(*next_state)) {
+                if !(seen.contains(next_state)
+                    || graph.contains_key(next_state)
+                    || is_endstate(*next_state))
+                {
                     seen.insert(*next_state);
                     queue.push(*next_state);
                 }
             }
+
             // as simply takes the lowest 8 bits of the number
             // safe because roll is guarenteed to be between 1 and 4 here
             graph
@@ -40,7 +45,10 @@ pub fn dfs() -> Graph {
 
             for next_state in &mut next_states {
                 *next_state = set_endgame_status(*next_state);
-                if !(seen.contains(next_state) || is_endstate(*next_state)) {
+                if !(seen.contains(next_state)
+                    || graph.contains_key(next_state)
+                    || is_endstate(*next_state))
+                {
                     seen.insert(*next_state);
                     queue.push(*next_state);
                 }
