@@ -45,11 +45,11 @@ Since the policy is deterministic both during and after training. Learning $V^\p
 
 The Bellman equation provides:
 
-$$V^\pi(s) = \sum_a \pi(s,a) \sum_{s'}P^a_{ss'}\gamma V^\pi(s')$$
+$$V^\pi(s) = \sum_a \pi(s,a) \sum_{s'}P^a_{ss'}V^\pi(s')$$
 
 Note $P^a_{ss'} = 1 \, \forall \, a, s, s'$ since the transition is fully deterministic given a start state and a dice roll + move combination.
 
-Note that there is no immediate reward for any action taken while the game is in progress.
+Since this game is episodic, the rewards are not discounted.
 
 ## Learning Policy
 Assuming a greedy policy, we can group the available moves by the dice roll needed. In each group, the move that transitions to the most valuable next state is always chosen. Then $\pi(s, a) can be based on the following dice roll distribution:
@@ -63,18 +63,6 @@ Assuming a greedy policy, we can group the available moves by the dice roll need
 3 - $\frac{1}{4}$
 
 4 - $\frac{1}{16}$
-
-## Learning
-Since the policy is deterministic both during and after training. Learning $V^\pi(s)$ and $Q^\pi(s,a)$ should achieve equivalent results. The former is easier to implement.
-
-Then the Bellman equation provides:
-
-$$V^\pi(s) = \sum_a \pi(s,a) \sum_{s'}P^a_{ss'}\gamma V^\pi(s')$$
-
-Note that there is no immediate reward for any action taken while the game is in progress.
-
-## Initialization
-The terminal states must be initialized to zero. Other states initialized using a simple heuristic, perhaps (#white pieces ascended - #black pieces ascended). Transition to a white win end state is given a 100 reward and transition to a black win end state is given a -100 reward.
 
 ## Optimal Policy
 The optimal policy is one that leads to equal or better expected return compared to all other policies at all states. This would be the greedy strategy once the optimal state value function is obtained.
@@ -98,8 +86,3 @@ $3 \times 10^8 \times 32 = 1.2 \times 10^9$ bits = 1.2 GB
 Note that this is also an optimistic estimate since padding will be added based on Rust memory alignment rules.
 
 Unwiedly, but maybe still within the realm of feasibility.
-
-## Questions
-What's the win/loss reward? Does it matter?
-
-What's an appropriate discount rate?

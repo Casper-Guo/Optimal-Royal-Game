@@ -1,3 +1,5 @@
+use std::hash::Hash;
+
 use crate::board::{get_next_states, set_endgame_status, verify_state};
 use crate::HashSet;
 
@@ -13,7 +15,41 @@ fn verify_state_test() {
 }
 
 #[test]
-fn get_next_states_test() {}
+fn get_next_states_test() {
+    let mut expected = HashSet::from([2630106752246366736, 3206602517123317776]);
+    let mut actual = HashSet::from_iter(get_next_states(3206567470190051856, 4, 1));
+    assert_eq!(expected, actual);
+
+    expected = HashSet::from([
+        3134509876152123924,
+        3206567470173274640,
+        3783028153773998336,
+        3206633440887964176,
+    ]);
+    actual = HashSet::from_iter(get_next_states(3206567470190051856, 2, 0));
+    assert_eq!(expected, actual);
+
+    expected = HashSet::from([3098481525792983105, 3098516128197132353]);
+    actual = HashSet::from_iter(get_next_states(3098481493580728385, 2, 1));
+    assert_eq!(expected, actual);
+
+    expected = HashSet::from([36028797018963968]);
+    actual = HashSet::from_iter(get_next_states(36028797035741184, 2, 0));
+    assert_eq!(expected, actual);
+
+    expected = HashSet::from([16777216]);
+    actual = HashSet::from_iter(get_next_states(36028797035741184, 1, 1));
+    assert_eq!(expected, actual);
+
+    // regression testing
+    expected = HashSet::from([17726172533524283392]);
+    actual = HashSet::from_iter(get_next_states(17726168135477755968, 4, 0));
+    assert_eq!(expected, actual);
+
+    expected = HashSet::from([297527846477267024, 297265063197249552]);
+    actual = HashSet::from_iter(get_next_states(297247471011139664, 4, 0));
+    assert_eq!(expected, actual);
+}
 
 #[test]
 fn set_endgame_status_test() {
