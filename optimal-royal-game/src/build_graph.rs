@@ -1,5 +1,4 @@
 use crate::board::{get_next_states, set_endgame_status};
-use crate::consts::IN_PROGRESS;
 use crate::types::{Graph, State, States};
 use crate::{HashMap, HashSet};
 
@@ -8,7 +7,7 @@ use crate::{HashMap, HashSet};
 fn is_endstate(state: State) -> bool {
     // let status = (state & (0b11 << 62)) >> 62;
     // status != IN_PROGRESS
-    state & 0xFFC0000 != 0
+    state & 0xFF00000 != 0
 }
 
 pub fn dfs() -> Graph {
@@ -18,6 +17,7 @@ pub fn dfs() -> Graph {
 
     while let Some(current_state) = queue.pop() {
         graph.insert(current_state, HashMap::new());
+        seen.remove(&current_state);
 
         for roll in 1..=4 {
             let mut next_states = get_next_states(current_state, roll, 0);
