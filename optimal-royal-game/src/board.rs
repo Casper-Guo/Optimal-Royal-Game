@@ -71,7 +71,7 @@ pub fn get_next_states(current_state: State, roll: u64, player: u64) -> States {
         next_state -= 1 << start_offset;
 
         // only 2 bits need to be updated since the onboard grid must be a private grid
-        next_state += self_status << (self_offset_start + 2 * (roll - 1));
+        next_state += self_status << onboard_grid_offset;
         next_states.push(next_state);
     }
 
@@ -178,9 +178,7 @@ pub fn set_endgame_status(state: State) -> State {
         return state + (0b11 << 62);
     }
 
-    let iter_range = if white_total == 0 { 0..28 } else { 28..56 };
-
-    for offset in iter_range.step_by(2) {
+    for offset in { 0..28 }.step_by(2) {
         match (state & (0b11 << offset)) >> offset {
             WHITE => white_total += 1,
             BLACK => black_total += 1,
@@ -192,17 +190,18 @@ pub fn set_endgame_status(state: State) -> State {
         // if white_total == 0, then iter_range was set to 0..28
         // which means we have checked all possible white piece locations
         return state + (0b01 << 62);
-    } else {
-        // white_total != 0, implies black_total == 0
-        // else would have returned already
+    }
+
+    if black_total == 0 {
+        // still need to check black private grids
         for offset in [28, 30, 32, 34, 52, 54] {
             if (state & (0b11 << offset)) >> offset == BLACK {
                 // still in progress
                 return state + (0b11 << 62);
             }
         }
+        return state + (0b10 << 62);
     }
 
-    // given white_total != 0 and we have checked black_total == 0
-    state + (0b10 << 62)
+    state + (0b11 << 62)
 }
