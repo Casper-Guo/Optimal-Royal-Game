@@ -1,6 +1,3 @@
-use optimal_royal_game::driver;
+use optimal_royal_game::{driver, write_json};
 
-fn main() {
-    // save_graph();
-    driver(0.5, 10);
-}
+fn main() {}
